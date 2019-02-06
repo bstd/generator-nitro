@@ -3,12 +3,13 @@
 const path = require('path');
 const fs = require('fs');
 const webpack = require('webpack');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const FontConfigWebpackPlugin = require('font-config-webpack-plugin');
+const JsConfigWebpackPlugin = require('js-config-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
-const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const WebpackBar = require('webpackbar');
+const TsConfigWebpackPlugin = require('ts-config-webpack-plugin');
 
 const hotMiddlewareScript = 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true';
 const appDirectory = fs.realpathSync(process.cwd());
@@ -17,6 +18,7 @@ const includePath = path.join(appDirectory, 'src');
 module.exports = (options = { rules: {}, features: {} }) => {
 
 	const webpackConfig = {
+		mode: 'development',
 		devtool: 'eval-source-map',
 		context: appDirectory,
 		entry: {
@@ -46,7 +48,6 @@ module.exports = (options = { rules: {}, features: {} }) => {
 		plugins: [
 			new CaseSensitivePathsPlugin({ debug: false }),
 			new webpack.HotModuleReplacementPlugin(),
-			new WebpackBar(),
 		],
 		watchOptions: {
 			ignored: /node_modules/,
@@ -59,7 +60,6 @@ module.exports = (options = { rules: {}, features: {} }) => {
 				cacheGroups: {
 					// allow dynamic imports for node_modules also
 					dynamic: {
-						test: /[\\/]node_modules[\\/]/,
 						minSize: 3000,
 						chunks: 'async',
 						priority: 0,
@@ -96,39 +96,8 @@ module.exports = (options = { rules: {}, features: {} }) => {
 
 	// JS
 	if (options.rules.js) {
-
-		// Prepend missing js file extensions
-		const jsExtensions = ['.js', '.jsx', '.mjs'].filter(
-			ext => !webpackConfig.resolve.extensions.includes(ext)
-		);
-		webpackConfig.resolve.extensions.unshift(...jsExtensions);
-
-		// Add js rule
-		webpackConfig.module.rules.push(
-			{
-				test: /\.(js|jsx|mjs)$/,
-				include: includePath,
-				exclude: /node_modules/,
-				use: {
-					loader: require.resolve('babel-loader'),
-					options: {
-						babelrc: false,
-						cacheDirectory: true,
-						plugins: [
-							[ require.resolve('@babel/plugin-proposal-decorators'), { 'legacy': true } ],
-							require.resolve('@babel/plugin-syntax-dynamic-import'),
-						],
-						presets: [
-							[
-								require.resolve('@babel/preset-env'),
-								{
-									useBuiltIns: 'entry',
-								},
-							],
-						],
-					},
-				},
-			},
+		webpackConfig.plugins.push(
+			new JsConfigWebpackPlugin({ babelConfigFile: './babel.config.js' }),
 		);
 
 		// eslint live validation
@@ -153,53 +122,7 @@ module.exports = (options = { rules: {}, features: {} }) => {
 
 	// typescript
 	if (options.rules.ts) {
-
-		// Prepend missing typescript file extensions
-		const tsExtensions = ['.ts', '.tsx', '.js'].filter(
-			ext => !webpackConfig.resolve.extensions.includes(ext)
-		);
-		webpackConfig.resolve.extensions.unshift(...tsExtensions);
-
-		// Add ts rule
-		webpackConfig.module.rules.push(
-			// From https://github.com/TypeStrong/ts-loader/blob/master/examples/thread-loader/webpack.config.js
-			{
-				test: /\.(tsx?|d.ts)$/,
-				include: includePath,
-				use: [
-					{
-						loader: require.resolve('cache-loader'),
-						options: {
-							cacheDirectory: path.resolve('node_modules/.cache-loader'),
-						},
-					},
-					{
-						loader: require.resolve('thread-loader'),
-						options: {
-							// there should be 1 cpu for the fork-ts-checker-webpack-plugin
-							workers: require('os').cpus().length - 1,
-						},
-					},
-					{
-						loader: require.resolve('ts-loader'),
-						options: {
-							// Increase build speed
-							// by disabling typechecking for the main process
-							// and is required to be used with thread-loader
-							// see https://github.com/TypeStrong/ts-loader/blob/master/examples/thread-loader/webpack.config.js
-							happyPackMode: true,
-						},
-					},
-				],
-			}
-		);
-
-		webpackConfig.plugins.push(
-			new ForkTsCheckerWebpackPlugin({
-				async: false,
-				checkSyntacticErrors: true,
-			}),
-		);
+		webpackConfig.plugins.push(new TsConfigWebpackPlugin());
 	}
 
 	// CSS & SCSS
@@ -225,7 +148,13 @@ module.exports = (options = { rules: {}, features: {} }) => {
 						loader: require.resolve('postcss-loader'),
 						options: {
 							plugins: (loader) => [
-								require('autoprefixer'),
+								require('autoprefixer')({
+									// @see autopreficer options: https://github.com/postcss/autoprefixer#options
+									// flexbox: 'no-2009' will add prefixes only for final and IE versions of specification.
+									flexbox: 'no-2009',
+									// grid: 'autoplace': enable autoprefixer grid translations and include autoplacement support.
+									// not enabled - use `/* autoprefixer grid: autoplace */` in your css file
+								}),
 								require('iconfont-webpack-plugin')({
 									resolve: loader.resolve,
 								}),
@@ -300,12 +229,8 @@ module.exports = (options = { rules: {}, features: {} }) => {
 
 	// woff fonts (for example, in CSS files)
 	if (options.rules.woff) {
-		webpackConfig.module.rules.push(
-			{
-				test: /.(woff(2)?)(\?[a-z0-9]+)?$/,
-				include: includePath,
-				use: require.resolve('file-loader'),
-			}
+		webpackConfig.plugins.push(
+			new FontConfigWebpackPlugin({ name: 'media/fonts/[name]-[hash:7].[ext]' }),
 		);
 	}
 

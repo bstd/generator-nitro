@@ -58,6 +58,12 @@ describe('nitro:app', () => {
 			]);
 		});
 
+		it('package.json contains project name', () => {
+			assert.fileContent([
+				['package.json', '"name": "temp-test",'],
+			]);
+		});
+
 		it('package.json contains @nitro dependencies', () => {
 			assert.fileContent([
 				['package.json', '@nitro/app'],
@@ -123,7 +129,8 @@ describe('nitro:app', () => {
 		it('example icons are not present', () => {
 			assert.noFile([
 				'src/shared/assets/img/icon/favicon.ico',
-				'src/shared/assets/img/icon/tile-icon.png',
+				'src/shared/assets/img/icon/favicon-16x16.png',
+				'src/shared/assets/img/icon/favicon-32x32.png',
 				'src/shared/assets/img/icon/apple-touch-icon.png',
 			]);
 		});

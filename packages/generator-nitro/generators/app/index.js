@@ -85,9 +85,9 @@ module.exports = class extends Generator {
 		));
 
 		// check whether there is already a nitro application in place and we only have to update the application
-		const json = this.fs.readJSON(this.destinationPath('package.json'), { defaults: { 'new': true } });
+		const json = this.fs.readJSON(this.destinationPath('.yo-rc.json'), { 'new': true });
 
-		if (!json.new && _.indexOf(json.keywords, 'nitro') !== -1) {
+		if (!json.new) {
 			// update existing application
 			return this.prompt([
 				{
@@ -112,6 +112,8 @@ module.exports = class extends Generator {
 					this.options.clientTpl = typeof config.clientTemplates === 'boolean' ? config.clientTemplates : this.options.clientTpl;
 					this.options.exampleCode = typeof config.exampleCode === 'boolean' ? config.exampleCode : this.options.exampleCode;
 					this.options.exporter = typeof config.exporter === 'boolean' ? config.exporter : this.options.exporter;
+
+					this.options.name = _.kebabCase(this.options.name);
 				}
 			});
 		} else {
@@ -164,6 +166,8 @@ module.exports = class extends Generator {
 				this.options.exampleCode = answers.exampleCode !== undefined ? answers.exampleCode : this.options.exampleCode;
 				this.options.exporter = answers.exporter !== undefined ? answers.exporter : this.options.exporter;
 
+				this.options.name = _.kebabCase(this.options.name);
+
 				this.config.set('name', this.options.name);
 				this.config.set('templateEngine', this.options.templateEngine);
 				this.config.set('clientTemplates', this.options.clientTpl);
@@ -187,10 +191,6 @@ module.exports = class extends Generator {
 					{
 						src: 'https://raw.githubusercontent.com/namics/frontend-defaults/master/codequality/htmllint/.htmllintrc',
 						dest: '.htmllintrc',
-					},
-					{
-						src: 'https://raw.githubusercontent.com/namics/frontend-defaults/master/editorconfig/.editorconfig',
-						dest: '.editorconfig',
 					},
 					{
 						src: 'https://raw.githubusercontent.com/namics/frontend-defaults/master/repo/gitignore/nitro.gitignore',
@@ -250,6 +250,8 @@ module.exports = class extends Generator {
 			'src/ui.js',
 			'src/proto.js',
 			'tests/backstop/backstop.config.js',
+			'docker-compose.yml',
+			'docker-compose-dev.yml',
 			'gulpfile.js',
 			'package.json',
 		];

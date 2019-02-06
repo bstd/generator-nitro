@@ -1,5 +1,7 @@
 'use strict';
 
+/* global process */
+
 /**
  * Usage:
  *  gulp dump-views
@@ -29,6 +31,7 @@ const viewFilter = (viewItem) => {
 	}
 	return true;
 };
+
 let isRunning = false;
 let server;
 
@@ -37,6 +40,30 @@ function getViews() {
 		.getViews(`${config.get('nitro.basePath')}${config.get('nitro.viewDirectory')}`)
 		.filter(viewFilter)
 		.map((viewItem) => viewItem.url);
+}
+
+function getViewsToDump() {
+	const views = getViews();
+	let dumpedViews = [];
+	let languages = (argv.locales === undefined) ? [] : argv.locales.split(',');
+	if (process.env.NITRO_VIEW_LOCALES) {
+		languages = process.env.NITRO_VIEW_LOCALES.split(',');
+	}
+	if (languages.length) {
+		languages.forEach((lng) => {
+			dumpedViews = dumpedViews.concat(views.map((v) => {
+				return (lng !== 'default') ? `${v}?lang=${lng}` : v;
+			}));
+		});
+	} else {
+		dumpedViews = views;
+	}
+
+	// add additional routes from env
+	const additionalRoutes = (process.env.NITRO_ADDITIONAL_ROUTES) ? process.env.NITRO_ADDITIONAL_ROUTES.split(',') : [];
+	dumpedViews = dumpedViews.concat(additionalRoutes);
+
+	return dumpedViews;
 }
 
 function startTmpServer(port, gulp, plugins, cb) {
@@ -66,28 +93,14 @@ function stopTmpServer() {
 function dumpViews(port, gulp, plugins) {
 	return del(tmpDirectory)
 		.then(() => {
-			const views = getViews();
-			let dumpedViews = [];
-			const languages = (argv.locales === undefined) ? [] : argv.locales.split(',');
-
-			if (languages.length) {
-				languages.filter((lng) => lng !== 'default').forEach((lng) => {
-					dumpedViews = dumpedViews.concat(views.map((v) => `${v}?lang=${lng}`));
-				});
-				if (languages.includes('default')) {
-					Array.prototype.unshift.apply(dumpedViews, views);
-				}
-			} else {
-				dumpedViews = views;
-			}
-
-			return plugins.remoteSrc(dumpedViews, {
+			const views = getViewsToDump();
+			return plugins.remoteSrc(views, {
 				base: `http://localhost:${port}/`,
 				buffer: true,
 			})
 				.pipe(plugins.rename((path) => {
 					const lang = path.basename.match(/\?lang=([a-z]+)/);
-					path.extname = '.html';
+					path.extname = path.extname || '.html';
 					if (lang) {
 						path.basename = path.basename.replace(/\?lang=[a-z]+/, '');
 						path.basename += `-${lang[1]}`;
