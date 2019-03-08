@@ -179,52 +179,6 @@ module.exports = class extends Generator {
 		}
 	}
 
-	get configuring() {
-		return {
-			download() {
-				const done = this.async();
-				const filesToDownload = [
-					{
-						src: 'https://raw.githubusercontent.com/namics/frontend-defaults/master/codequality/accessibility/.accessibilityrc',
-						dest: '.accessibilityrc',
-					},
-					{
-						src: 'https://raw.githubusercontent.com/namics/frontend-defaults/master/codequality/htmllint/.htmllintrc',
-						dest: '.htmllintrc',
-					},
-					{
-						src: 'https://raw.githubusercontent.com/namics/frontend-defaults/master/repo/gitignore/nitro.gitignore',
-						dest: '.gitignore',
-					},
-					{
-						src: 'https://raw.githubusercontent.com/namics/frontend-defaults/master/repo/gitattributes/.gitattributes',
-						dest: '.gitattributes',
-					},
-				];
-
-				this.log('Downloading frontend-defaults files');
-
-				const promises = filesToDownload.map(file => {
-					return new Promise((resolve, reject) => {
-						request
-							.get(file.src)
-							.on('error', (err) => {
-								reject(err);
-							})
-							.on('end', () => {
-								resolve(file.dest);
-							})
-							.pipe(fs.createWriteStream(this.destinationPath(file.dest)));
-					});
-				});
-
-				Promise.all(promises).then(() => {
-					done();
-				});
-			},
-		};
-	}
-
 	writing() {
 
 		this.log('Scaffolding your app');
@@ -286,23 +240,27 @@ module.exports = class extends Generator {
 			'src/patterns/atoms/button/button',
 			'src/patterns/atoms/checkbox/checkbox',
 			'src/patterns/atoms/cta/cta',
+			'src/patterns/atoms/datepicker/datepicker',
+			'src/patterns/atoms/gondel/gondel',
 			'src/patterns/atoms/heading/heading',
 			'src/patterns/atoms/icon/icon',
 			'src/patterns/atoms/image/image',
 			'src/patterns/atoms/list/list',
 			'src/patterns/atoms/loader/loader',
+			'src/patterns/atoms/lottie/lottie',
 			'src/patterns/atoms/stage/stage',
 			'src/patterns/molecules/example/example',
 			'project/blueprints/pattern/$pattern$',
 		];
 		const examplePaths = [
 			// paths only for this.options.exampleCode===true
+			'project/routes/',
+			'public/content/',
 			'src/views/example/',
 			'src/patterns/',
 			'src/proto/',
 			'src/shared/',
-			'project/routes/',
-			'public/content/',
+			'tests/cypress/cypress/integration/examples/'
 		];
 		const exampleIncludeAnyway = [
 			// example file "parts" included for this.options.exampleCode===false
@@ -383,6 +341,11 @@ module.exports = class extends Generator {
 			if (_.indexOf(tplFiles, file) !== -1) {
 				this.fs.copyTpl(sourcePath, destinationPath, templateData);
 				return;
+			}
+
+			// rename CUTAWAY.gitignore to .gitignore
+			if (destinationPath.indexOf('CUTAWAY') !== -1) {
+				destinationPath = destinationPath.replace(/CUTAWAY/g, '');
 			}
 
 			this.fs.copy(sourcePath, destinationPath);
