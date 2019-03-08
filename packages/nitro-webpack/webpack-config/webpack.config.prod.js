@@ -3,15 +3,16 @@
 const path = require('path');
 const fs = require('fs');
 const webpack = require('webpack');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const FontConfigWebpackPlugin = require('font-config-webpack-plugin');
+const JsConfigWebpackPlugin = require('js-config-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const TsConfigWebpackPlugin = require('ts-config-webpack-plugin');
 const WebpackBar = require('webpackbar');
 
 const appDirectory = fs.realpathSync(process.cwd());
-const includePath = path.join(appDirectory, 'src');
 
 const bannerData = {
 	date: new Date().toISOString().slice(0, 19),
@@ -37,6 +38,7 @@ module.exports = (options = { rules: {}, features: {} }) => {
 	}
 
 	const webpackConfig = {
+		mode: 'production',
 		devtool: 'source-map',
 		context: appDirectory,
 		entry: {
@@ -68,7 +70,6 @@ module.exports = (options = { rules: {}, features: {} }) => {
 				cacheGroups: {
 					// allow dynamic imports for node_modules also
 					dynamic: {
-						test: /[\\/]node_modules[\\/]/,
 						minSize: 3000,
 						chunks: 'async',
 						priority: 0,
@@ -105,99 +106,21 @@ module.exports = (options = { rules: {}, features: {} }) => {
 
 	// JS
 	if (options.rules.js) {
-
-		// Prepend missing js file extensions
-		const jsExtensions = ['.js', '.jsx', '.mjs'].filter(
-			ext => !webpackConfig.resolve.extensions.includes(ext)
-		);
-		webpackConfig.resolve.extensions.unshift(...jsExtensions);
-
-		// Add js rule
-		webpackConfig.module.rules.push(
-			{
-				test: /\.(js|jsx|mjs)$/,
-				include: includePath,
-				exclude: /node_modules/,
-				use: {
-					loader: require.resolve('babel-loader'),
-					options: {
-						babelrc: false,
-						cacheDirectory: true,
-						plugins: [
-							[ require.resolve('@babel/plugin-proposal-decorators'), { 'legacy': true } ],
-							require.resolve('@babel/plugin-syntax-dynamic-import'),
-						],
-						presets: [
-							[
-								require.resolve('@babel/preset-env'),
-								{
-									useBuiltIns: 'entry',
-								},
-							],
-						],
-					},
-				},
-			},
+		webpackConfig.plugins.push(
+			new JsConfigWebpackPlugin({ babelConfigFile: './babel.config.js' }),
 		);
 	}
 
 	// typescript
 	if (options.rules.ts) {
-
-		// Prepend missing typescript file extensions
-		const tsExtensions = ['.ts', '.tsx', '.js'].filter(
-			ext => !webpackConfig.resolve.extensions.includes(ext)
-		);
-		webpackConfig.resolve.extensions.unshift(...tsExtensions);
-
-		// Add js rule
-		webpackConfig.module.rules.push(
-			// From https://github.com/TypeStrong/ts-loader/blob/master/examples/thread-loader/webpack.config.js
-			{
-				test: /\.(tsx?|d.ts)$/,
-				include: includePath,
-				use: [
-					{
-						loader: require.resolve('cache-loader'),
-						options: {
-							cacheDirectory: path.resolve('node_modules/.cache-loader'),
-						},
-					},
-					{
-						loader: require.resolve('thread-loader'),
-						options: {
-							// there should be 1 cpu for the fork-ts-checker-webpack-plugin
-							workers: require('os').cpus().length - 1,
-						},
-					},
-					{
-						loader: require.resolve('ts-loader'),
-						options: {
-							// Increase build speed
-							// by disabling typechecking for the main process
-							// and is required to be used with thread-loader
-							// see https://github.com/TypeStrong/ts-loader/blob/master/examples/thread-loader/webpack.config.js
-							happyPackMode: true,
-						},
-					},
-				],
-			},
-		);
-
-		webpackConfig.plugins.push(
-			new ForkTsCheckerWebpackPlugin({
-				async: false,
-				checkSyntacticErrors: true,
-			}),
-		);
+		webpackConfig.plugins.push(new TsConfigWebpackPlugin());
 	}
 
 	// CSS & SCSS
 	if (options.rules.scss) {
 		webpackConfig.module.rules.push(
 			{
-				test: /\.?scss$/,
-				include: includePath,
+				test: /\.s?css$/,
 				use: [
 					MiniCssExtractPlugin.loader,
 					{
@@ -215,7 +138,11 @@ module.exports = (options = { rules: {}, features: {} }) => {
 									require('iconfont-webpack-plugin')({
 										resolve: loader.resolve,
 									}),
-									require('autoprefixer'),
+									require('autoprefixer')({
+										// @see autopreficer options: https://github.com/postcss/autoprefixer#options
+										// flexbox: 'no-2009' will add prefixes only for final and IE versions of specification.
+										flexbox: 'no-2009',
+									}),
 								];
 							},
 							sourceMap: true,
@@ -252,7 +179,6 @@ module.exports = (options = { rules: {}, features: {} }) => {
 		webpackConfig.module.rules.push(
 			{
 				test: /\.hbs$/,
-				include: includePath,
 				exclude: [
 					/node_modules/,
 					path.resolve(appDirectory, 'src/views'),
@@ -275,15 +201,8 @@ module.exports = (options = { rules: {}, features: {} }) => {
 
 	// woff fonts (for example, in CSS files)
 	if (options.rules.woff) {
-		webpackConfig.module.rules.push(
-			{
-				test: /.(woff(2)?)(\?[a-z0-9]+)?$/,
-				include: includePath,
-				loader: require.resolve('file-loader'),
-				options: {
-					name: 'media/fonts/[name]-[hash:7].[ext]',
-				},
-			},
+		webpackConfig.plugins.push(
+			new FontConfigWebpackPlugin({ name: 'media/fonts/[name]-[hash:7].[ext]' }),
 		);
 	}
 
@@ -293,7 +212,6 @@ module.exports = (options = { rules: {}, features: {} }) => {
 			// image loader & minification
 			{
 				test: /\.(png|jpg|gif|svg|ico)$/,
-				include: includePath,
 				loader: require.resolve('img-loader'),
 				// Specify enforce: 'pre' to apply the loader before url-loader
 				enforce: 'pre',
@@ -327,7 +245,6 @@ module.exports = (options = { rules: {}, features: {} }) => {
 			// inlines assets below a limit
 			{
 				test: /\.(png|jpg|gif|svg)$/,
-				include: includePath,
 				loader: require.resolve('url-loader'),
 				options: {
 					limit: 3 * 1028,

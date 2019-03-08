@@ -41,8 +41,11 @@ describe('nitro:app', () => {
 
 		it('includes project config files', () => {
 			assert.file([
+				'.editorconfig',
 				'.eslintignore',
 				'.eslintrc.js',
+				'.gitattributes',
+				'.gitignore',
 				'.prettierignore',
 				'.prettierrc.js',
 				'.stylelintignore',
@@ -50,11 +53,9 @@ describe('nitro:app', () => {
 			]);
 		});
 
-		it('includes namics frontend-defaults', () => {
-			assert.file([
-				'.editorconfig',
-				'.gitattributes',
-				'.gitignore',
+		it('package.json contains project name', () => {
+			assert.fileContent([
+				['package.json', '"name": "temp-test",'],
 			]);
 		});
 
@@ -123,7 +124,8 @@ describe('nitro:app', () => {
 		it('example icons are not present', () => {
 			assert.noFile([
 				'src/shared/assets/img/icon/favicon.ico',
-				'src/shared/assets/img/icon/tile-icon.png',
+				'src/shared/assets/img/icon/favicon-16x16.png',
+				'src/shared/assets/img/icon/favicon-32x32.png',
 				'src/shared/assets/img/icon/apple-touch-icon.png',
 			]);
 		});

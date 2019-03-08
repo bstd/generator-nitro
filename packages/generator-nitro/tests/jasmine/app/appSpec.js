@@ -12,6 +12,22 @@ describe('nitro:app', () => {
 
 	jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
 
+	describe('when using custom name', () => {
+		beforeAll((done) => {
+			helpers.run(path.join(__dirname, '../../../generators/app'))
+				.inDir(path.join(os.tmpdir(), './temp-test'))
+				.withOptions({ 'skip-install': true })
+				.withPrompts({ name: 'my Project' })
+				.on('end', done);
+		});
+
+		it('package.json contains project name', () => {
+			assert.fileContent([
+				['package.json', '"name": "my-project",'],
+			]);
+		});
+	});
+
 	describe('when using template engine hbs', () => {
 		beforeAll((done) => {
 			helpers.run(path.join(__dirname, '../../../generators/app'))
@@ -138,7 +154,8 @@ describe('nitro:app', () => {
 		it('example icons are present', () => {
 			assert.file([
 				'src/shared/assets/img/icon/favicon.ico',
-				'src/shared/assets/img/icon/tile-icon.png',
+				'src/shared/assets/img/icon/favicon-16x16.png',
+				'src/shared/assets/img/icon/favicon-32x32.png',
 				'src/shared/assets/img/icon/apple-touch-icon.png',
 			]);
 		});
@@ -193,7 +210,8 @@ describe('nitro:app', () => {
 		it('example icons are not present', () => {
 			assert.noFile([
 				'src/shared/assets/img/icon/favicon.ico',
-				'src/shared/assets/img/icon/tile-icon.png',
+				'src/shared/assets/img/icon/favicon-16x16.png',
+				'src/shared/assets/img/icon/favicon-32x32.png',
 				'src/shared/assets/img/icon/apple-touch-icon.png',
 			]);
 		});

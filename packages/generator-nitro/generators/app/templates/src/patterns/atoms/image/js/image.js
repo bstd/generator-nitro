@@ -7,15 +7,13 @@ import 'lazysizes/plugins/parent-fit/ls.parent-fit';
 
 /**
  * configuration for lazysizes
- *
- * @author ernscht <ernscht@gmail.com>
  */
 
 const stateClasses = {
 	lazyload: 'js-a-image--lazyload',
-	pending: 'state-a-image--pending',
-	loading: 'state-a-image--loading',
-	loaded: 'state-a-image--loaded',
+	pending: 'state-a-image__image--pending',
+	loading: 'state-a-image__image--loading',
+	loaded: 'state-a-image__image--loaded',
 };
 
 Object.assign(lazySizes.cfg, {
