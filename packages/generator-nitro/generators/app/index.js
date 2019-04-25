@@ -215,8 +215,15 @@ module.exports = class extends Generator {
 			'.npmignore',
 		];
 		const ignoresOnUpdate = [
-			// files to ignore on updating projects
+			// files and directories to ignore on updating projects
 			'config/local.js',
+			'project/blueprints/',
+			'project/routes/',
+			'public/',
+			'src/patterns/',
+			'src/proto/css/',
+			'src/shared/',
+			'src/views/',
 		];
 		const clientTplFiles = [
 			// files only for this.options.clientTpl===true
@@ -291,7 +298,7 @@ module.exports = class extends Generator {
 
 			// exclude update ignores
 			if (this._update) {
-				if (_.indexOf(ignoresOnUpdate, file) !== -1) {
+				if (ignoresOnUpdate.some((v) => file.indexOf(v) >= 0)	) {
 					return;
 				}
 			}

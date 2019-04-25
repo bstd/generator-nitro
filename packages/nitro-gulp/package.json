@@ -1,6 +1,6 @@
 {
   "name": "@nitro/gulp",
-  "version": "4.4.3",
+  "version": "4.6.2",
   "description": "Nitro gulp",
   "license": "MIT",
   "author": "The Nitro Team",
@@ -22,15 +22,15 @@
     "gulp"
   ],
   "peerDependencies": {
-    "@nitro/app": ">= 4.2.0"
+    "@nitro/app": ">=4.6.0"
   },
   "dependencies": {
     "backstopjs": "3.8.8",
-    "browser-sync": "2.26.3",
-    "compression": "1.7.3",
-    "config": "3.0.1",
-    "del": "4.0.0",
-    "get-port": "4.2.0",
+    "browser-sync": "2.26.4",
+    "compression": "1.7.4",
+    "config": "3.1.0",
+    "del": "4.1.0",
+    "get-port": "5.0.0",
     "globby": "7.1.1",
     "gulp": "3.9.1",
     "gulp-accessibility": "3.1.1",
@@ -43,7 +43,7 @@
     "gulp-remote-src": "0.4.4",
     "gulp-rename": "1.4.0",
     "gulp-sequence": "1.0.0",
-    "gulp-svgmin": "2.1.0",
+    "gulp-svgmin": "2.2.0",
     "gulp-svgstore": "7.0.1",
     "gulp-watch": "5.0.1",
     "imagemin-pngquant": "7.0.0",
@@ -54,8 +54,8 @@
   "devDependencies": {
     "@namics/eslint-config": "6.1.0",
     "@nitro/app": "*",
-    "eslint": "5.15.1",
-    "eslint-plugin-import": "2.16.0",
+    "eslint": "5.16.0",
+    "eslint-plugin-import": "2.17.2",
     "pkg-ok": "2.3.1"
   },
   "publishConfig": {

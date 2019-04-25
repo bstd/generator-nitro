@@ -23,6 +23,7 @@ import './patterns/atoms/icon';
 import './patterns/atoms/image';
 import './patterns/atoms/list';
 import './patterns/atoms/loader';
+import './patterns/atoms/quote';
 import './patterns/atoms/lottie';
 import './patterns/atoms/stage';
 import './patterns/molecules/example';
@@ -34,6 +35,7 @@ import './patterns/test/ico';
 import './patterns/test/t';
 import './patterns/test/tbox';
 import './patterns/test/tbutton';
+import './patterns/test/slick';
 
 hot(module);
 
