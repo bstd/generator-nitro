@@ -5,12 +5,12 @@ const fs = require('fs');
 const webpack = require('webpack');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-const FontConfigWebpackPlugin = require('font-config-webpack-plugin');
 const JsConfigWebpackPlugin = require('js-config-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TsConfigWebpackPlugin = require('ts-config-webpack-plugin');
 const WebpackBar = require('webpackbar');
+const utils = require('../lib/utils');
 
 const appDirectory = fs.realpathSync(process.cwd());
 
@@ -39,7 +39,7 @@ module.exports = (options = { rules: {}, features: {} }) => {
 
 	const webpackConfig = {
 		mode: 'production',
-		devtool: 'source-map',
+		devtool: 'hidden-source-map',
 		context: appDirectory,
 		entry: {
 			ui: './src/ui.js',
@@ -104,7 +104,7 @@ module.exports = (options = { rules: {}, features: {} }) => {
 		},
 	};
 
-	// JS
+	// js
 	if (options.rules.js) {
 		webpackConfig.plugins.push(
 			new JsConfigWebpackPlugin({ babelConfigFile: './babel.config.js' }),
@@ -116,7 +116,7 @@ module.exports = (options = { rules: {}, features: {} }) => {
 		webpackConfig.plugins.push(new TsConfigWebpackPlugin());
 	}
 
-	// CSS & SCSS
+	// css & scss
 	if (options.rules.scss) {
 		webpackConfig.module.rules.push(
 			{
@@ -167,54 +167,78 @@ module.exports = (options = { rules: {}, features: {} }) => {
 				chunkFilename: 'css/[name]-[id].min.css',
 			}),
 			new OptimizeCSSAssetsPlugin({
-				// cssProcessorOptions: {
-				// 	sourceMap: true,
-				// },
+				cssProcessorOptions: {
+					map: {
+						inline: false,
+					},
+				},
 			}),
 		);
 	}
 
 	// handlebars precompiled templates
 	if (options.rules.hbs) {
-		webpackConfig.module.rules.push(
-			{
-				test: /\.hbs$/,
-				exclude: [
-					/node_modules/,
-					path.resolve(appDirectory, 'src/views'),
-				],
-				use: {
-					loader: require.resolve('handlebars-loader'),
-					options: {
-						// helperDirs: [
-						// 	path.resolve(__dirname, '../../app/templating/hbs/helpers'),
-						// ],
-						// knownHelpers: [],
-						// runtime: '',
-						// partialDirs: ''
-					},
-				},
+		const hbsRule = {
+			test: /\.hbs$/,
+			use: {
+				loader: require.resolve('handlebars-loader'),
+				// options: {
+				// 	helperDirs: [
+				// 		path.resolve(__dirname, '../../app/templating/hbs/helpers'),
+				// 	],
+				// 	knownHelpers: [],
+				// 	runtime: '',
+				// 	partialDirs: ''
+				// },
 			},
-
+		};
+		webpackConfig.module.rules.push(
+			utils.getEnrichedConfig(hbsRule, options.rules.hbs),
 		);
 	}
 
 	// woff fonts (for example, in CSS files)
 	if (options.rules.woff) {
-		webpackConfig.plugins.push(
-			new FontConfigWebpackPlugin({ name: 'media/fonts/[name]-[hash:7].[ext]' }),
+		const woffRule = {
+			test: /.(woff(2)?)(\?[a-z0-9]+)?$/,
+			use: {
+				loader: require.resolve('file-loader'),
+				options: {
+					name: 'media/fonts/[name]-[hash:7].[ext]',
+				},
+			}
+		};
+		webpackConfig.module.rules.push(
+			utils.getEnrichedConfig(woffRule, options.rules.woff),
 		);
 	}
 
-	// image loader
-	if (options.rules.image) {
+	// different font types (legacy - eg. used in older library css)
+	if (options.rules.font) {
+		const fontRule = {
+			test: /\.(eot|svg|ttf|woff|woff2)([?#]+[A-Za-z0-9-_]*)*$/,
+			use: {
+				loader: require.resolve('url-loader'),
+				options: {
+					limit: 2 * 1028,
+					name: 'media/font/[name]-[hash:7].[ext]',
+				}
+			}
+		};
 		webpackConfig.module.rules.push(
-			// image loader & minification
-			{
-				test: /\.(png|jpg|gif|svg|ico)$/,
+			utils.getEnrichedConfig(fontRule, options.rules.font),
+		);
+	}
+
+	// images
+	if (options.rules.image) {
+		// image loader & minification
+		const imageMinificationRule = {
+			test: /\.(png|jpg|gif|svg|ico)$/,
+			// Specify enforce: 'pre' to apply the loader before url-loader
+			enforce: 'pre',
+			use: {
 				loader: require.resolve('img-loader'),
-				// Specify enforce: 'pre' to apply the loader before url-loader
-				enforce: 'pre',
 				options: {
 					plugins: [
 						require('imagemin-gifsicle')({
@@ -237,20 +261,28 @@ module.exports = (options = { rules: {}, features: {} }) => {
 								{removeUnknownsAndDefaults: false},
 								{removeViewBox: false}
 							]
-						})
-					]
-				}
+						}),
+					],
+				},
 			},
-			// url loader for images (for example, in CSS files)
-			// inlines assets below a limit
-			{
-				test: /\.(png|jpg|gif|svg)$/,
+		};
+
+		// url loader for images (for example, in CSS files)
+		// inlines assets below a limit
+		const imageRule = {
+			test: /\.(png|jpg|gif|svg)$/,
+			use: {
 				loader: require.resolve('url-loader'),
 				options: {
 					limit: 3 * 1028,
 					name: 'media/[ext]/[name]-[hash:7].[ext]',
 				},
 			},
+		};
+
+		webpackConfig.module.rules.push(
+			imageMinificationRule,
+			utils.getEnrichedConfig(imageRule, options.rules.image),
 		);
 	}
 
