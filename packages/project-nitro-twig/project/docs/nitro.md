@@ -447,16 +447,10 @@ If you need more custom functionality in endpoints
 you can put your custom routes with their logic
 into the [`/project/routes` directory](../routes/).
 
-### Custom Handlebars helpers
+### Custom twig helpers
 
-Custom handlebars helpers will be automatically loaded if put into to `project/helpers` directory. An example could look like 
-this:
-
-```js
-module.exports = function(foo) {
-    // Helper Logic
-};
-```
+Custom twig helpers will be automatically loaded
+if put into to [`project/helpers`](../helpers/readme.md) directory.
 
 ### API Endpoints
 
@@ -484,4 +478,4 @@ Use or create new scripts in `package.json` to run with npm.
 
 ## Credits
 
-This app was generated with yeoman and the [generator-nitro](https://www.npmjs.com/package/generator-nitro) package (version 4.6.2).
+This app was generated with yeoman and the [generator-nitro](https://www.npmjs.com/package/generator-nitro) package (version 4.7.3).

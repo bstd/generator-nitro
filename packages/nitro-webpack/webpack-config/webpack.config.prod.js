@@ -42,8 +42,8 @@ module.exports = (options = { rules: {}, features: {} }) => {
 		devtool: 'hidden-source-map',
 		context: appDirectory,
 		entry: {
-			ui: './src/ui.js',
-			proto: './src/proto.js',
+			ui: './src/ui',
+			proto: './src/proto',
 		},
 		output: {
 			path: path.resolve(appDirectory, 'public', 'assets'),
@@ -52,7 +52,6 @@ module.exports = (options = { rules: {}, features: {} }) => {
 			publicPath: '/assets/',
 		},
 		resolve: {
-			extensions: ['.mjs', '.js'],
 			symlinks: false,
 		},
 		module: {
@@ -293,5 +292,6 @@ module.exports = (options = { rules: {}, features: {} }) => {
 
 	return webpackConfig;
 };
+module.exports.appDirectory = appDirectory;
 
 /* eslint-enable */
