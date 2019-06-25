@@ -188,6 +188,7 @@ module.exports = class extends Generator {
 		const tplFiles = [
 			// files to process with copyTpl
 			'config/default.js',
+			'config/default/exporter.js',
 			'config/webpack/options.js',
 			'project/docs/nitro.md',
 			'project/docs/client-templates.md',
@@ -265,7 +266,7 @@ module.exports = class extends Generator {
 			'public/content/',
 			'src/views/example/',
 			'src/patterns/',
-			'src/proto/',
+			'src/proto/utils/',
 			'src/shared/',
 			'tests/cypress/cypress/integration/examples/'
 		];
@@ -273,8 +274,6 @@ module.exports = class extends Generator {
 			// example file "parts" included for this.options.exampleCode===false
 			'project/routes/readme.md',
 			'src/patterns/readme.md',
-			'src/proto/js/prototype.js',
-			'src/proto/readme.md',
 			'src/shared/readme.md',
 			'.gitkeep',
 		];

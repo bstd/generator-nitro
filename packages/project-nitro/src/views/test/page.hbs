@@ -7,7 +7,26 @@
 			{{pattern name='Ex' data='ex-template'}}
 			{{pattern name='t'}}
 			{{pattern name='b'}}
-			{{> test/bar}}
+			{{#eq 'test' 'test'}}
+				{{> test/bar}}
+			{{else}}
+				<div class="shouldnotberendered">This should not be rendered if eq helper works corret.</div>
+			{{/eq}}
+		</div>
+	</div>
+
+	<div class="row cy-viewlist">
+		<div class="col-md-3 offset-md-2">
+			viewlist full:
+			{{viewlist}}
+		</div>
+		<div class="col-md-3">
+			viewlist with excludes ('test'):
+			{{viewlist exclude='test'}}
+		</div>
+		<div class="col-md-2">
+			viewlist with includes ('example,404')
+			{{viewlist include='example,404'}}
 		</div>
 	</div>
 </div>

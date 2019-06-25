@@ -22,11 +22,11 @@ module.exports = (options = { rules: {}, features: {} }) => {
 		context: appDirectory,
 		entry: {
 			ui: [
-				'./src/ui.js',
+				'./src/ui',
 				hotMiddlewareScript,
 			],
 			proto: [
-				'./src/proto.js',
+				'./src/proto',
 				hotMiddlewareScript,
 			],
 		},
@@ -38,7 +38,6 @@ module.exports = (options = { rules: {}, features: {} }) => {
 			pathinfo: false,
 		},
 		resolve: {
-			extensions: [],
 			symlinks: false,
 		},
 		module: {
@@ -274,5 +273,7 @@ module.exports = (options = { rules: {}, features: {} }) => {
 
 	return webpackConfig;
 };
+module.exports.hotMiddlewareScript = hotMiddlewareScript;
+module.exports.appDirectory = appDirectory;
 
 /* eslint-enable */
