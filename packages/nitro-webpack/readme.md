@@ -24,7 +24,7 @@ const options = {
         image: true,
     },
     features: {
-        gitInfo: false,
+        banner: true,
         bundleAnalyzer: false,
     },
 };
@@ -37,69 +37,69 @@ module.exports = webpackConfig;
 
 ### Rules
 
-No loader rule is enabled by default. Activate following prepared rules you need in `options.rules` 
+No loader rule is enabled by default. Activate following prepared rules you need in `options.rules`
 
 #### `options.rules.js`
 
-* type: boolean || object
-* default: false
-* file types: js, jsx, mjs
+-   Type: boolean || object
+-   default: false
+-   file types: js, jsx, mjs
 
 Config:
 
-* `true` or `{}` activates JavaScript support
-* `{ eslint: true }` additionally adds eslint live linting feature (only relevant for development build)
+-   `true` or `{}` activates JavaScript support
+-   `{ eslint: true }` additionally adds eslint live linting feature (only relevant for development build)
 
 #### `options.rules.ts`
 
-* type: boolean
-* default: false
-* file types: ts, tsx
+-   Type: boolean
+-   default: false
+-   file types: ts, tsx
 
 Config:
 
-* `true` will activate TypeScript support
+-   `true` will activate TypeScript support
 
 #### `options.rules.scss`
 
-* type: boolean || object
-* default: false
-* file types: scss, css
+-   Type: boolean || object
+-   default: false
+-   file types: scss, css
 
 Config:
 
-* `true` or `{}` will activate scss support
-* `{ stylelint: true }` additionally adds stylelint live linting feature (only relevant for development build)
+-   `true` or `{}` will activate scss support
+-   `{ stylelint: true }` additionally adds stylelint live linting feature (only relevant for development build)
 
 #### `options.rules.hbs`
 
-* type: boolean || object
-* default: false
-* file types: hbs
+-   Type: boolean || object
+-   default: false
+-   file types: hbs
 
 Config:
 
-* `true` or `{}` will activate handlebars precompiled templates support
-* `{ include: [] }` additionally adds include config to rule
-* `{ exclude: [] }` additionally adds exclude config to rule
+-   `true` or `{}` will activate handlebars handlebars precompiled templates support
+-   `{ include: [] }` additionally adds include config to rule
+-   `{ exclude: [] }` additionally adds exclude config to rule
 
 #### `options.rules.woff`
 
-* type: boolean || object
-* default: false
-* file types: woff, woff2
+-   Type: boolean || object
+-   default: false
+-   file types: woff, woff2
 
 Config:
 
-`true` or `{}` will activate woff font support (in CSS files)
-* `{ include: [] }` additionally adds include config to rule
-* `{ exclude: [] }` additionally adds exclude config to rule
+-   `true` or `{}` will activate woff font support (in CSS files)
+-   `{ include: [] }` additionally adds include config to rule
+-   `{ exclude: [] }` additionally adds exclude config to rule
 
 #### `options.rules.font`
 
-* type: boolean || object
-* default: false
-* file types: eot, svg, ttf, woff, woff2
+-   type: boolean || object
+-   default: false
+-   file types: eot, svg, ttf, woff, woff2
 
 Config:
 
@@ -112,35 +112,35 @@ Otherwise svg or woff files are processed with multiple configurations.
 
 #### `options.rules.image`
 
-* type: boolean || object
-* default: false
-* file types: png, jpg, gif, svg
+-   Type: boolean || object
+-   default: false
+-   file types: png, jpg, gif, svg
 
 Config:
 
-* `true` will activate image support
-* `{ include: [] }` additionally adds include config to rule
-* `{ exclude: [] }` additionally adds exclude config to rule
+-   `true` will activate image support
+-   `{ include: [] }` additionally adds include config to rule
+-   `{ exclude: [] }` additionally adds exclude config to rule
 
 ### `options.features`
 
 Enable some additional features
 
-#### `options.features.bundleAnalyzer`
+#### `options.features.banner`
 
-* Type: boolean
-* default: false
-
-`true` will add the bundleAnalyser plugin and opens a browser window with the stats
-
-#### `options.features.gitInfo`
-
-* Type: boolean
-* default: false
+-   Type: boolean
+-   default: true
 
 (only relevant for production build)
 
-`true` will add infos from git (branchname/last commit) in assets banner text
+`true` will add a text banner with infos from package.json to the bundled js & css
+
+#### `options.features.bundleAnalyzer`
+
+-   Type: boolean
+-   default: false
+
+`true` will add the bundleAnalyser plugin and opens a browser window with the stats
 
 ## Extending Configuration
 
@@ -151,7 +151,7 @@ By default, all js imports from 'node_modules' are extracted to a 'vendors.js' t
 Dynamically imported js files will be extracted to `public/js/dynamic/`.
 You may use them in a promise chain.
 
-```
+```js
 import('package-name').then((pack) => {
 	// do something with 'pack'
 });

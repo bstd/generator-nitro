@@ -1,6 +1,6 @@
 'use strict';
 
-const port = process.env.PORT || '8889';
+const port = process.env.PORT || '8891';
 const hostName = process.env.HOST_NAME || 'http://host.docker.internal';
 const host = `${hostName}:${port}`;
 const viewports = [
@@ -63,7 +63,6 @@ module.exports = {
 		postInteractionWait: 0,
 		selectors: [],
 		selectorExpansion: false,
-		expect: 2,
 		misMatchThreshold: 0.1,
 		requireSameDimensions: true,
 	},

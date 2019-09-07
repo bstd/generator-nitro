@@ -25,6 +25,7 @@ let banner = `${bannerData.pkg.name}
 
 module.exports = (options = { rules: {}, features: {} }) => {
 
+	// gitInfo (deprecated)
 	if (options.features.gitInfo) {
 		const GitRevisionPlugin = require('git-revision-webpack-plugin');
 		const gitRevisionPlugin = new GitRevisionPlugin({ branch: true });
@@ -48,7 +49,7 @@ module.exports = (options = { rules: {}, features: {} }) => {
 		output: {
 			path: path.resolve(appDirectory, 'public', 'assets'),
 			filename: 'js/[name].min.js',
-			chunkFilename: 'js/[name]-[hash:7].min.js',
+			chunkFilename: 'js/[name]-[contenthash:7].min.js',
 			publicPath: '/assets/',
 		},
 		resolve: {
@@ -58,7 +59,6 @@ module.exports = (options = { rules: {}, features: {} }) => {
 			rules: [],
 		},
 		plugins: [
-			new webpack.BannerPlugin({ banner }),
 			new CaseSensitivePathsPlugin({ debug: false }),
 			new WebpackBar(),
 		],
@@ -152,9 +152,6 @@ module.exports = (options = { rules: {}, features: {} }) => {
 					},
 					{
 						loader: require.resolve('sass-loader'),
-						options: {
-							sourceMap: true,
-						},
 					},
 				],
 			},
@@ -282,6 +279,13 @@ module.exports = (options = { rules: {}, features: {} }) => {
 		webpackConfig.module.rules.push(
 			imageMinificationRule,
 			utils.getEnrichedConfig(imageRule, options.rules.image),
+		);
+	}
+
+	// feature banner (enabled by default)
+	if (!options.features.banner === false) {
+		webpackConfig.plugins.push(
+			new webpack.BannerPlugin({ banner }),
 		);
 	}
 

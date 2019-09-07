@@ -1,4 +1,4 @@
-@import "../../../../shared/utils/colors2/css/colors2.scss";
+@import '../../../../shared/utils/colors2/css/colors2.scss';
 
 @keyframes a-loader-loading {
 	0% {
@@ -25,6 +25,7 @@
 	left: 0;
 	height: 100%;
 	width: 100%;
+	user-select: none;
 }
 
 .a-loader__wrap {
