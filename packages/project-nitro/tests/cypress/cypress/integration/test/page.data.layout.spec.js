@@ -13,8 +13,11 @@ context('Test Page Data', () => {
 	});
 
 	describe('Content', () => {
-		it('text contains', () => {
+		it('text contains _nitro.pageTitle', () => {
 			cy.get('.col-md-8 > :nth-child(1)').contains('The "data" page = pageTitle (view)');
+		});
+		it('text contains _nitro.pageUrl', () => {
+			cy.get('.col-md-8 > :nth-child(2)').contains(`${Cypress.config().baseUrl}/test-data = pageUrl (view)`);
 		});
 	});
 
@@ -22,7 +25,7 @@ context('Test Page Data', () => {
 		it('elements does not exist', () => {
 			cy.get('h1').should('not.exist');
 
-			cy.get('p').should('have.length', 4);
+			cy.get('p').should('have.length', 5);
 		});
 	});
 });
@@ -39,8 +42,11 @@ context('Test Page Data with different layout', () => {
 	});
 
 	describe('Content', () => {
-		it('text contains', () => {
+		it('text contains _nitro.pageTitle', () => {
 			cy.get('.col-md-8 > :nth-child(1)').contains('The "data" page = pageTitle (view)');
+		});
+		it('text contains _nitro.pageUrl', () => {
+			cy.get('.col-md-8 > :nth-child(2)').contains(`${Cypress.config().baseUrl}/test-data?_layout=test = pageUrl (view)`);
 		});
 	});
 
@@ -48,7 +54,7 @@ context('Test Page Data with different layout', () => {
 		it('new elements exists', () => {
 			cy.get('h1').contains('alternative layout');
 
-			cy.get('p').should('have.length', 5);
+			cy.get('p').should('have.length', 6);
 
 			cy.get('p:last').contains('The "data" page = pageTitle (view)');
 		});

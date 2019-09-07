@@ -1,0 +1,9 @@
+{
+	"extends": "@namics/ts-config",
+	"include": ["src/**/*"],
+	"compilerOptions": {
+		"baseUrl": "./src",
+		"rootDir": "."
+	},
+	"exclude": ["dist", "build", "public", "project", "node_modules"]
+}
